@@ -139,21 +139,50 @@ CI: GitHub Actions, матрица Ubuntu/Windows × Python 3.10/3.12.
 
 ## Установка и запуск
 
+**1. Клонировать и создать окружение.**
+
+Windows (PowerShell):
+
+```powershell
+git clone https://github.com/holliholkc/quant-lab
+cd quant-lab
+python -m venv .venv
+.\.venv\Scripts\activate
+```
+
+Linux / macOS:
+
 ```bash
 git clone https://github.com/holliholkc/quant-lab
 cd quant-lab
-python -m venv .venv && .\.venv\Scripts\activate
-pip install -e .[dev]
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-pytest                                  # тесты
+**2. Установить библиотеку со всеми зависимостями.**
+
+```bash
+pip install -e ".[dev]"
+```
+
+Эта команда ставит сам пакет `quantlab` плюс всё, что нужно для
+тестов, примеров и демки: **pytest, pandas, matplotlib, streamlit**.
+Если нужно только ядро (без демки и тестов) — `pip install -e .`,
+оно тянет один NumPy.
+
+**3. Запускать.**
+
+```bash
+pytest                                  # тесты (34 passed)
 python examples/run_strategies.py      # таблица и график выше
 python examples/plot_indicators.py     # галерея индикаторов
 python benchmarks/bench_indicators.py  # бенчмарки
 streamlit run app/streamlit_app.py     # интерактивная демка
 ```
 
-Зависимость ядра — только NumPy. pandas/matplotlib нужны лишь для
-примеров и тестов.
+Если `streamlit` «не распознан как команда» — шаг 2 был выполнен без
+`[dev]` или в другом окружении; повтори `pip install -e ".[dev]"` при
+активированном venv.
 
 ## Ограничения и развитие
 
