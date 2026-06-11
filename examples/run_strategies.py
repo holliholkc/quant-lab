@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from quantlab import indicators as ind
+from quantlab import strategies as strat
 from quantlab.backtest import buy_and_hold, drawdown_series, run_backtest
 
 HERE = Path(__file__).resolve().parent
@@ -46,50 +46,6 @@ def load_close(path: Path = DATA) -> tuple[np.ndarray, list[str]]:
     return np.asarray(closes), dates
 
 
-# --- textbook strategies (book parameters, deliberately untuned) -------------
-
-def sma_crossover_signals(close: np.ndarray, fast: int = 50, slow: int = 200):
-    """Golden cross: long while SMA(fast) > SMA(slow), flat otherwise."""
-    fast_line = ind.sma(close, fast)
-    slow_line = ind.sma(close, slow)
-    return np.where(fast_line > slow_line, 1.0, 0.0)
-
-
-def rsi_mean_reversion_signals(close: np.ndarray, period: int = 14,
-                               buy_below: float = 30, sell_above: float = 70):
-    """Long after RSI dips below 30, exit when it rises above 70."""
-    values = ind.rsi(close, period)
-    signals = np.zeros(len(close))
-    in_position = False
-    for i, v in enumerate(values):
-        if np.isnan(v):
-            continue
-        if not in_position and v < buy_below:
-            in_position = True
-        elif in_position and v > sell_above:
-            in_position = False
-        signals[i] = 1.0 if in_position else 0.0
-    return signals
-
-
-def bollinger_breakout_signals(close: np.ndarray, period: int = 20,
-                               num_std: float = 2.0):
-    """Long while price is above the upper band's last breakout, exit
-    at the middle band (classic breakout-with-trailing-exit)."""
-    upper, middle, _ = ind.bollinger(close, period, num_std)
-    signals = np.zeros(len(close))
-    in_position = False
-    for i in range(len(close)):
-        if np.isnan(middle[i]):
-            continue
-        if not in_position and close[i] > upper[i]:
-            in_position = True
-        elif in_position and close[i] < middle[i]:
-            in_position = False
-        signals[i] = 1.0 if in_position else 0.0
-    return signals
-
-
 def main() -> None:
     OUTPUT.mkdir(exist_ok=True)
     close, dates = load_close()
@@ -97,9 +53,9 @@ def main() -> None:
 
     runs = {
         "Buy & Hold": buy_and_hold(close),
-        "SMA 50/200 crossover": run_backtest(close, sma_crossover_signals(close)),
-        "RSI-14 mean reversion": run_backtest(close, rsi_mean_reversion_signals(close)),
-        "Bollinger 20/2 breakout": run_backtest(close, bollinger_breakout_signals(close)),
+        "SMA 50/200 crossover": run_backtest(close, strat.sma_crossover(close)),
+        "RSI-14 mean reversion": run_backtest(close, strat.rsi_mean_reversion(close)),
+        "Bollinger 20/2 breakout": run_backtest(close, strat.bollinger_breakout(close)),
     }
 
     header = (f"{'Strategy':<26} {'TotRet':>9} {'CAGR':>8} {'Sharpe':>7} "

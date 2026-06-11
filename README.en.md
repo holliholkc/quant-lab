@@ -10,7 +10,7 @@
 
 ## What this is
 
-Two layers of one library:
+Three layers of one library:
 
 * **`quantlab.indicators`** — 11 classic TA indicators implemented
   from the primary sources (Wilder 1978 et al.), not wrapped from an
@@ -18,6 +18,9 @@ Two layers of one library:
 * **`quantlab.backtest`** — a vectorized backtester with risk metrics
   that makes the two classic backtest lies structurally impossible
   (see "Engine honesty").
+* **`quantlab.strategies`** — textbook example strategies (SMA
+  crossover, RSI mean-reversion, Bollinger breakout) tying the two
+  layers together.
 
 ```python
 import numpy as np
@@ -41,6 +44,8 @@ print(buy_and_hold(close).summary())             # the baseline to beat
 | Momentum | RSI, Stochastic (%K/%D), CCI |
 | Volatility | Bollinger Bands, ATR |
 | Volume | OBV, VWAP |
+
+![Indicators gallery](examples/output/indicators_gallery.png)
 
 Shared conventions:
 * warm-up values are **NaN** — never zeros or partial averages, so a
@@ -102,9 +107,22 @@ Honest footnote: EMA and RSI are recursive by definition
 explicit loop (0.3–0.8 s per million bars), with the reason documented
 in the code.
 
+## Interactive demo
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+Two tabs: **Indicators** — price with overlays (SMA/EMA/Bollinger) and
+a switchable oscillator panel, every parameter a live slider;
+**Backtest** — pick a strategy, tune parameters and costs, and watch
+the equity curve fight buy-and-hold in real time. The demo comments on
+the result honestly: even if the sliders beat Buy & Hold, that is one
+asset, one period, and parameters picked in hindsight.
+
 ## Tests
 
-28 tests; the core principle: **every vectorized implementation is
+34 tests; the core principle: **every vectorized implementation is
 checked against a naive reference** written in the tests directly from
 the textbook formula. Plus:
 
@@ -115,7 +133,7 @@ the textbook formula. Plus:
   ordered, warm-up lengths match the definitions.
 
 ```bash
-pytest          # 28 passed
+pytest          # 34 passed
 ```
 
 CI: GitHub Actions, Ubuntu/Windows × Python 3.10/3.12 matrix.
@@ -130,7 +148,9 @@ pip install -e .[dev]
 
 pytest                                  # tests
 python examples/run_strategies.py      # the table and chart above
+python examples/plot_indicators.py     # indicators gallery
 python benchmarks/bench_indicators.py  # benchmarks
+streamlit run app/streamlit_app.py     # interactive demo
 ```
 
 The core depends only on NumPy; pandas/matplotlib are needed for the

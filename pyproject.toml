@@ -13,7 +13,7 @@ authors = [{ name = "holliholkc" }]
 dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pandas>=2.0", "matplotlib>=3.8"]
+dev = ["pytest>=8.0", "pandas>=2.0", "matplotlib>=3.8", "streamlit>=1.30"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
